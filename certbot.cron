@@ -54,6 +54,11 @@ try_dns01() {
 	echo "domains = [\"$SNIKKET_DOMAIN_ASCII\", \"*.$SNIKKET_DOMAIN_ASCII\"]" >> agnos.toml
 	echo "fullchain_output_file = \"/snikket/letsencrypt/live/$SNIKKET_DOMAIN_ASCII/fullchain.pem\"" >> agnos.toml
 	echo "key_output_file = \"/snikket/letsencrypt/live/$SNIKKET_DOMAIN_ASCII/privkey.pem\"" >> agnos.toml
+	if echo "$SNIKKET_CERTBOT_KEY_OPTIONS" | grep no-reuse-key; then
+	  echo "reuse_private_key = false" >> agnos.toml
+	else
+	  echo "reuse_private_key = true" >> agnos.toml
+	fi
 	install -o letsencrypt -g letsencrypt -m 750 -d "/snikket/letsencrypt/live/$SNIKKET_DOMAIN_ASCII"
 	su letsencrypt -- -c "agnos-generate-accounts-keys --no-confirm agnos.toml"
 	if su letsencrypt -- -c "agnos --no-staging agnos.toml 2>&1 > /var/log/letsencrypt/agnos.log"; then
